@@ -119,7 +119,7 @@ module Sprinkle
         @optional = []
         @verifications = []
         @installers = []
-        self.instance_eval &block
+        self.instance_eval(&block)
       end
       def add_user(username, options={},  &block)
         @installers << Sprinkle::Installers::User.new(self, username, options, &block)
@@ -314,6 +314,48 @@ module Sprinkle
 
       def to_s; @name; end
 
+      @@capistrano = {}
+      @@db_config = {}
+      @@stage = 'staging'
+
+      def self.set_variables=(set)
+        @@capistrano = set
+      end
+
+      def self.fetch(name)
+        @@capistrano[name]
+      end
+
+      def self.exists?(name)
+        @@capistrano.key?(name)
+      end
+
+      def self.add_db(stage, db)
+        @@db_config = db[stage]
+      end
+
+      def self.database_name
+        @@db_config["database"]
+      end
+
+      def self.stage=(s)
+        @@stage = s
+      end
+
+      def self.stage
+        @@stage
+      end
+      
+      STAGES = ['production', 'staging']
+      def self.preprocess_stage(text)
+        STAGES.each do |s|
+          next if stage == s #Remove all stages from config except this stage
+          marker = s.upcase
+          text = text.gsub(/##{marker}.*?##{marker}/m,'')
+        end
+        return text.gsub(/#\{RAILS_ENV\}/, stage)
+      end
+
       private
 
         def select_package(name, packages)
@@ -322,7 +364,7 @@ module Sprinkle
           else
             package = choose do |menu|
               menu.prompt = "Multiple choices exist for virtual package #{name}"
-              menu.choices *packages.collect(&:to_s)
+              menu.choices(*packages.collect(&:to_s))
             end
             package = Sprinkle::Package::PACKAGES[package]
           end
