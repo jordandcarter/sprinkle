@@ -82,6 +82,8 @@ module Sprinkle
         # command sequence construction (eg. source based installer).
         def install_sequence
           commands = pre_commands(:install) + [ install_commands ] + post_commands(:install)
+          commands = [commands] unless commands.is_a? Array
+          commands = commands.collect{|c| c.respond_to?(:call) ? c.call : c}.flatten
           commands.flatten
         end
 
