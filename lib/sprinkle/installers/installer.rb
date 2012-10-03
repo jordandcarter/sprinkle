@@ -64,15 +64,16 @@ module Sprinkle
 
       def process(roles) #:nodoc:
         assert_delivery
-
+        
+        sequence = install_sequence
         if logger.debug?
-          sequence = install_sequence; sequence = sequence.join('; ') if sequence.is_a? Array
-          logger.debug "#{@package.name} install sequence: #{sequence} for roles: #{roles}\n"
+          sequence_joined = sequence.join('; ') if sequence.is_a? Array
+          logger.debug "#{@package.name} install sequence: #{sequence_joined} for roles: #{roles}\n"
         end
 
         unless Sprinkle::OPTIONS[:testing]
           logger.info "--> Installing #{package.name} for roles: #{roles}"
-          @delivery.process(@package.name, install_sequence, roles)
+          @delivery.process(@package.name, sequence, roles)
         end
       end
 
