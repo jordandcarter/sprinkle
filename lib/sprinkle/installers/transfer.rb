@@ -167,10 +167,9 @@ module Sprinkle
 
           post = post_commands(:install)
           unless post.empty?
-            post = [post] unless post.is_a? Array
-            post = post.collect{|p| p.respond_to?(:call) ? p.call : p}.flatten
-            logger.info "#{@package.name} post-transfer commands: #{post.join('; ')} for roles: #{roles}\n"
-            @delivery.process @package.name, post, roles
+            sequence = post; sequence = sequence.join('; ') if sequence.is_a? Array
+            logger.info "#{@package.name} post-transfer commands: #{sequence} for roles: #{roles}\n"
+            @delivery.process @package.name, [post].flatten, roles
           end
         end
       end
