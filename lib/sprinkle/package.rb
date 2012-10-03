@@ -347,9 +347,9 @@ module Sprinkle
       end
       
       STAGES = ['production', 'staging']
-      def self.preprocess_stage(text)
+      def self.preprocess_stage(text, selected_stage=stage)
         STAGES.each do |s|
-          next if stage == s #Remove all stages from config except this stage
+          next if selected_stage == s #Remove all stages from config except this stage
           marker = s.upcase
           text = text.gsub(/##{marker}.*?##{marker}/m,'')
         end
